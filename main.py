@@ -1,35 +1,60 @@
+from http.client import UPGRADE_REQUIRED
 import xml.sax
 import gzip
 import xml.etree.ElementTree as ET
+import csv
+import os
+from callback import Callback
 
+paper_obj_list = []
 
 class MyHandler(xml.sax.ContentHandler):
     def __init__(self):
         self.current_element = ""
+        self.title = ""
+        self.author = []
+        self.year = ""
+        self.journal = ""
+        self.ee = ""
         self.text = ""
         self.mdate = ""
+        self.key = ""
+        self.publtype = ""
 
     def startElement(self, name, attrs):
         self.current_element = name
         if name == "article":
             self.mdate = attrs.get("mdate", "")  # Get the mdate attribute
+            self.key = attrs.get("key","") # Get the key attribute
+            self.publtype = attrs.get("publtype","") # Get the publtype attribute
+
 
     def characters(self, content):
-        self.text += content
+        self.text += (content.strip())
 
     def endElement(self, name):
         if name == "title":
-            print("Title:", self.text)
+            self.title = self.text
         elif name == "author":
-            print("Author:", self.text)
+            self.author = self.author + [self.text]
         elif name == "year":
-            print("Year:", self.text)
+            self.year = self.text
         elif name == "journal":
-            print("Journal:", self.text)
+            self.journal = self.text
         elif name == "ee":
-            print("EE URL:", self.text)
+            self.ee = self.text
         elif name == "article":
-            print("MDate:", self.mdate)
+            current_obj_paper = {"Mdate": self.mdate, "Key": self.key, "Publtype": self.publtype, "Title":self.title, "Authors:":self.author, "Year":self.year, "Journal":self.journal, "EE":self.ee}
+            paper_obj_list.append(current_obj_paper)
+            self.title = ""
+            self.author = []
+            self.year = ""
+            self.journal = ""
+            self.ee = ""
+            self.article = ""
+            self.mdate = ""
+            self.key = ""
+            self.publtype = ""
         self.text = ""
 
 
@@ -42,4 +67,7 @@ if __name__ == "__main__":
         parser.parse(open(xml_file_path, 'r'))
     except Exception as e:
         print("Error parsing XML:", str(e))
-
+    callback_obj = Callback(paper_obj_list)
+    callback_obj.print_paper()
+    callback_obj.count_paper()
+    
