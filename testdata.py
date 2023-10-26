@@ -31,6 +31,19 @@ def process_paper_callback(paper):
     
 paper_list = []
 
+def levenshtein_length_comparison(dataset_A, dataset_B):
+    title_lengths_A = [len(paper.title) for paper in dataset_A if paper.title is not None]
+    title_lengths_B = [len(title) for title in dataset_B if title is not None]
+
+    # Calculate Levenshtein distances and store them in a list
+    distances = []
+    for length_A in title_lengths_A:
+        for length_B in title_lengths_B:
+            distance = abs(length_A - length_B)
+            distances.append(distance)
+
+    return distances
+
 def read_file_with_callback(file_path, callback):
     with gzip.open(file_path, 'rt', encoding='utf-8') as f:
         for line in f:
