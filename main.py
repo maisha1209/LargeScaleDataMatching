@@ -8,7 +8,7 @@ from callback import Callback
 
 paper_obj_list = []
 
-class MyHandler(xml.sax.ContentHandler):
+class main(xml.sax.ContentHandler):
     def __init__(self):
         self.current_element = ""
         self.title = ""
